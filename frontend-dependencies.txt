@@ -1,0 +1,21 @@
+📦 Dépendances à installer:
+
+npm install
+
+# Dépendances de base (déjà installées par Breeze)
+@inertiajs/vue3
+vue
+pinia
+axios
+
+# Charts
+npm install chart.js
+
+# Utilitaires
+npm install date-fns
+
+# Icons (optionnel)
+npm install @heroicons/vue
+
+# Validation (optionnel)
+npm install vee-validate yup

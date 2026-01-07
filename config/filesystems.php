@@ -60,6 +60,33 @@ return [
             'report' => false,
         ],
 
+ 'properties' => [
+        'driver' => 'local',
+        'root' => storage_path('app/public/properties'),
+        'url' => env('APP_URL').'/storage/properties',
+        'visibility' => 'public',
+    ],
+    
+    'maintenance' => [
+        'driver' => 'local',
+        'root' => storage_path('app/public/maintenance'),
+        'url' => env('APP_URL').'/storage/maintenance',
+        'visibility' => 'public',
+    ],
+    
+    'contracts' => [
+        'driver' => 'local',
+        'root' => storage_path('app/private/contracts'),
+        'visibility' => 'private',
+    ],
+    
+    'invoices' => [
+        'driver' => 'local',
+        'root' => storage_path('app/private/invoices'),
+        'visibility' => 'private',
+    ],
+
+
     ],
 
     /*

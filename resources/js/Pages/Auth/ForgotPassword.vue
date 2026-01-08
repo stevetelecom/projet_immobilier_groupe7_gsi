@@ -1,54 +1,70 @@
 <template>
-    <GuestLayout title="Mot de passe oublié">
-        <div class="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4">
-            <div class="max-w-md w-full">
-                <div class="text-center mb-8">
-                    <h2 class="text-3xl font-extrabold text-gray-900">Mot de passe oublié ?</h2>
-                    <p class="mt-2 text-sm text-gray-600">
-                        Entrez votre email pour recevoir un lien de réinitialisation
-                    </p>
-                </div>
+    <GuestLayout>
+        <Head title="Mot de passe oublié" />
 
-                <form @submit.prevent="submit" class="bg-white p-8 rounded-lg shadow space-y-6">
-                    <div v-if="status" class="p-4 bg-green-50 border border-green-200 text-green-800 rounded">
-                        {{ status }}
-                    </div>
-
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Email</label>
-                        <input
-                            v-model="form.email"
-                            type="email"
-                            required
-                            class="w-full px-3 py-2 border border-gray-300 rounded-md"
-                        />
-                    </div>
-
-                    <div class="flex items-center justify-between">
-                        <Link :href="route('login')" class="text-sm text-indigo-600 hover:text-indigo-500">
-                            ← Retour
-                        </Link>
-
-                        <button
-                            type="submit"
-                            :disabled="form.processing"
-                            class="px-6 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 disabled:opacity-50"
-                        >
-                            Envoyer
-                        </button>
-                    </div>
-                </form>
-            </div>
+        <div class="mb-4 text-sm text-gray-600">
+            Vous avez oublié votre mot de passe ? Aucun problème. Indiquez-nous simplement votre adresse e-mail et 
+            nous vous enverrons par e-mail un lien de réinitialisation de mot de passe qui vous permettra d'en choisir un nouveau.
         </div>
+
+        <div v-if="status" class="mb-4 font-medium text-sm text-green-600">
+            {{ status }}
+        </div>
+
+        <form @submit.prevent="submit">
+            <div>
+                <label for="email" class="block font-medium text-sm text-gray-700">Email</label>
+                <input
+                    id="email"
+                    type="email"
+                    v-model="form.email"
+                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                    required
+                    autofocus
+                    autocomplete="username"
+                />
+                <div v-if="form.errors.email" class="text-red-600 text-sm mt-1">
+                    {{ form.errors.email }}
+                </div>
+            </div>
+
+            <div class="flex items-center justify-between mt-4">
+                <Link
+                    :href="route('login')"
+                    class="text-sm text-indigo-600 hover:text-indigo-900 underline"
+                >
+                    Retour à la connexion
+                </Link>
+
+                <button
+                    type="submit"
+                    class="inline-flex items-center px-4 py-2 bg-indigo-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-700 focus:bg-indigo-700 active:bg-indigo-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150"
+                    :class="{ 'opacity-25': form.processing }"
+                    :disabled="form.processing"
+                >
+                    Envoyer le lien
+                </button>
+            </div>
+        </form>
     </GuestLayout>
 </template>
 
 <script setup>
-import { useForm, Link } from '@inertiajs/vue3';
+import { Head, Link, useForm } from '@inertiajs/vue3';
 import GuestLayout from '@/Components/Layout/GuestLayout.vue';
 
-defineProps({ status: String });
+defineProps({
+    status: {
+        type: String,
+        default: null,
+    },
+});
 
-const form = useForm({ email: '' });
-const submit = () => form.post(route('password.email'));
+const form = useForm({
+    email: '',
+});
+
+const submit = () => {
+    form.post(route('password.email'));
+};
 </script>

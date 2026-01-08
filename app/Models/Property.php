@@ -2,21 +2,15 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\Activitylog\LogOptions;
 
 class Property extends Model
 {
-    use HasFactory;
+    use SoftDeletes, LogsActivity;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array<int, string>
-     */
     protected $fillable = [
         'owner_id',
         'title',
@@ -44,11 +38,6 @@ class Property extends Model
         'available_from',
     ];
 
-    /**
-     * The attributes that should be cast.
-     *
-     * @var array<string, string>
-     */
     protected $casts = [
         'has_parking' => 'boolean',
         'has_elevator' => 'boolean',
@@ -60,133 +49,86 @@ class Property extends Model
         'latitude' => 'decimal:8',
         'longitude' => 'decimal:8',
         'available_from' => 'date',
+        'deposit_months' => 'integer',
+        'rooms' => 'integer',
+        'bedrooms' => 'integer',
+        'bathrooms' => 'integer',
+        'floor' => 'integer',
     ];
 
-    /**
-     * Get the owner of the property.
-     */
-    public function owner(): BelongsTo
+    // Configuration ActivityLog
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logOnly([
+                'title', 'description', 'price_per_month',
+                'charges', 'status', 'type', 'address', 'city'
+            ])
+            ->logOnlyDirty()
+            ->dontSubmitEmptyLogs()
+            ->useLogName('properties');
+    }
+
+    // Relations
+    public function owner()
     {
         return $this->belongsTo(User::class, 'owner_id');
     }
 
-    /**
-     * Get the images for the property.
-     */
-    public function images(): HasMany
+    public function images()
     {
         return $this->hasMany(PropertyImage::class)->orderBy('order');
     }
 
-    /**
-     * Get the primary image for the property.
-     */
-    public function primaryImage(): HasOne
+    public function primaryImage()
     {
         return $this->hasOne(PropertyImage::class)->where('is_primary', true);
     }
 
-    /**
-     * Get the documents for the property.
-     */
-    public function documents(): HasMany
+    public function documents()
     {
         return $this->hasMany(PropertyDocument::class);
     }
 
-    /**
-     * Get the contracts for the property.
-     */
-    public function contracts(): HasMany
+    public function contracts()
     {
         return $this->hasMany(Contract::class);
     }
 
-    /**
-     * Get the active contract for the property.
-     */
-    public function activeContract(): HasOne
+    public function activeContract()
     {
         return $this->hasOne(Contract::class)->where('status', 'active');
     }
 
-    /**
-     * Get the maintenance requests for the property.
-     */
-    public function maintenanceRequests(): HasMany
+    public function maintenanceRequests()
     {
         return $this->hasMany(MaintenanceRequest::class);
     }
 
-    /**
-     * Scope a query to only include available properties.
-     */
+    // Scopes
     public function scopeAvailable($query)
     {
         return $query->where('status', 'available');
     }
 
-    /**
-     * Scope a query to only include rented properties.
-     */
     public function scopeRented($query)
     {
         return $query->where('status', 'rented');
     }
 
-    /**
-     * Scope a query to filter by type.
-     */
     public function scopeByType($query, $type)
     {
         return $query->where('type', $type);
     }
 
-    /**
-     * Scope a query to filter by city.
-     */
-    public function scopeByCity($query, $city)
-    {
-        return $query->where('city', $city);
-    }
-
-    /**
-     * Scope a query to filter by price range.
-     */
-    public function scopeByPriceRange($query, $min, $max)
-    {
-        return $query->whereBetween('price_per_month', [$min, $max]);
-    }
-
-    /**
-     * Check if the property is available.
-     */
-    public function getIsAvailableAttribute(): bool
+    // Accessors
+    public function getIsAvailableAttribute()
     {
         return $this->status === 'available';
     }
 
-    /**
-     * Get the total price (rent + charges).
-     */
-    public function getTotalPriceAttribute(): float
+    public function getTotalPriceAttribute()
     {
         return $this->price_per_month + $this->charges;
-    }
-
-    /**
-     * Get the deposit amount.
-     */
-    public function getDepositAmountAttribute(): float
-    {
-        return $this->price_per_month * $this->deposit_months;
-    }
-
-    /**
-     * Check if the property is owned by a specific user.
-     */
-    public function isOwnedBy(User $user): bool
-    {
-        return $this->owner_id === $user->id;
     }
 }

@@ -1,41 +1,58 @@
 <template>
-    <GuestLayout title="Vérification email">
-        <div class="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4">
-            <div class="max-w-md w-full">
-                <div class="bg-white p-8 rounded-lg shadow text-center">
-                    <div class="text-6xl mb-4">📧</div>
-                    <h2 class="text-2xl font-bold mb-4">Vérifiez votre email</h2>
-                    
-                    <p class="text-gray-600 mb-6">
-                        Un lien de vérification a été envoyé à votre adresse email.
-                    </p>
+    <GuestLayout>
+        <Head title="Vérification de l'email" />
 
-                    <div v-if="status === 'verification-link-sent'" 
-                        class="mb-4 p-4 bg-green-50 border border-green-200 text-green-800 rounded">
-                        Un nouveau lien a été envoyé.
-                    </div>
-
-                    <form @submit.prevent="submit">
-                        <button type="submit" :disabled="form.processing" class="w-full py-3 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 disabled:opacity-50">
-                            Renvoyer l'email
-                        </button>
-                    </form>
-
-                    <Link :href="route('logout')" method="post" as="button" class="mt-4 text-sm text-gray-600 hover:text-gray-900">
-                        Se déconnecter
-                    </Link>
-                </div>
-            </div>
+        <div class="mb-4 text-sm text-gray-600">
+            Merci pour votre inscription ! Avant de commencer, pourriez-vous vérifier votre adresse e-mail en cliquant 
+            sur le lien que nous venons de vous envoyer ? Si vous n'avez pas reçu l'e-mail, nous vous en enverrons 
+            volontiers un autre.
         </div>
+
+        <div v-if="verificationLinkSent" class="mb-4 font-medium text-sm text-green-600">
+            Un nouveau lien de vérification a été envoyé à l'adresse e-mail que vous avez fournie lors de votre inscription.
+        </div>
+
+        <form @submit.prevent="submit">
+            <div class="flex items-center justify-between">
+                <button
+                    type="submit"
+                    class="inline-flex items-center px-4 py-2 bg-indigo-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-700 focus:bg-indigo-700 active:bg-indigo-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150"
+                    :class="{ 'opacity-25': form.processing }"
+                    :disabled="form.processing"
+                >
+                    Renvoyer l'email de vérification
+                </button>
+
+                <Link
+                    :href="route('logout')"
+                    method="post"
+                    as="button"
+                    class="text-sm text-gray-600 hover:text-gray-900 underline"
+                >
+                    Se déconnecter
+                </Link>
+            </div>
+        </form>
     </GuestLayout>
 </template>
 
 <script setup>
-import { useForm, Link } from '@inertiajs/vue3';
+import { computed } from 'vue';
+import { Head, Link, useForm } from '@inertiajs/vue3';
 import GuestLayout from '@/Components/Layout/GuestLayout.vue';
 
-defineProps({ status: String });
+const props = defineProps({
+    status: {
+        type: String,
+        default: null,
+    },
+});
 
 const form = useForm({});
-const submit = () => form.post(route('verification.send'));
+
+const submit = () => {
+    form.post(route('verification.send'));
+};
+
+const verificationLinkSent = computed(() => props.status === 'verification-link-sent');
 </script>

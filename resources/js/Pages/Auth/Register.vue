@@ -1,84 +1,123 @@
 <template>
-    <GuestLayout title="Inscription">
-        <div class="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4">
-            <div class="max-w-md w-full">
-                <div class="text-center mb-8">
-                    <h2 class="text-3xl font-extrabold text-gray-900">Créer un compte</h2>
-                    <p class="mt-2 text-sm text-gray-600">
-                        Ou
-                        <Link :href="route('login')" class="font-medium text-indigo-600 hover:text-indigo-500">
-                            se connecter
-                        </Link>
-                    </p>
+    <GuestLayout>
+        <Head title="Inscription" />
+
+        <form @submit.prevent="submit">
+            <!-- Name -->
+            <div>
+                <label for="name" class="block font-medium text-sm text-gray-700">Nom complet</label>
+                <input
+                    id="name"
+                    type="text"
+                    v-model="form.name"
+                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                    required
+                    autofocus
+                    autocomplete="name"
+                />
+                <div v-if="form.errors.name" class="text-red-600 text-sm mt-1">
+                    {{ form.errors.name }}
                 </div>
-
-                <form @submit.prevent="submit" class="bg-white p-8 rounded-lg shadow space-y-6">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Nom complet</label>
-                        <input
-                            v-model="form.name"
-                            type="text"
-                            required
-                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500"
-                            :class="{ 'border-red-300': form.errors.name }"
-                        />
-                        <p v-if="form.errors.name" class="mt-1 text-sm text-red-600">{{ form.errors.name }}</p>
-                    </div>
-
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Email</label>
-                        <input
-                            v-model="form.email"
-                            type="email"
-                            required
-                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500"
-                            :class="{ 'border-red-300': form.errors.email }"
-                        />
-                        <p v-if="form.errors.email" class="mt-1 text-sm text-red-600">{{ form.errors.email }}</p>
-                    </div>
-
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Mot de passe</label>
-                        <input
-                            v-model="form.password"
-                            type="password"
-                            required
-                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500"
-                            :class="{ 'border-red-300': form.errors.password }"
-                        />
-                        <p v-if="form.errors.password" class="mt-1 text-sm text-red-600">{{ form.errors.password }}</p>
-                    </div>
-
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Confirmer le mot de passe</label>
-                        <input
-                            v-model="form.password_confirmation"
-                            type="password"
-                            required
-                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500"
-                        />
-                    </div>
-
-                    <button
-                        type="submit"
-                        :disabled="form.processing"
-                        class="w-full py-3 bg-indigo-600 text-white rounded-md font-medium hover:bg-indigo-700 disabled:opacity-50"
-                    >
-                        {{ form.processing ? 'Inscription...' : "S'inscrire" }}
-                    </button>
-                </form>
             </div>
-        </div>
+
+            <!-- Email Address -->
+            <div class="mt-4">
+                <label for="email" class="block font-medium text-sm text-gray-700">Email</label>
+                <input
+                    id="email"
+                    type="email"
+                    v-model="form.email"
+                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                    required
+                    autocomplete="username"
+                />
+                <div v-if="form.errors.email" class="text-red-600 text-sm mt-1">
+                    {{ form.errors.email }}
+                </div>
+            </div>
+
+            <!-- Role -->
+            <div class="mt-4">
+                <label for="role" class="block font-medium text-sm text-gray-700">Type de compte</label>
+                <select
+                    id="role"
+                    v-model="form.role"
+                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                    required
+                >
+                    <option value="">Sélectionner un rôle</option>
+                    <option value="proprietaire">Propriétaire</option>
+                    <option value="locataire">Locataire</option>
+                    <option value="agent">Agent immobilier</option>
+                </select>
+                <div v-if="form.errors.role" class="text-red-600 text-sm mt-1">
+                    {{ form.errors.role }}
+                </div>
+            </div>
+
+            <!-- Password -->
+            <div class="mt-4">
+                <label for="password" class="block font-medium text-sm text-gray-700">Mot de passe</label>
+                <input
+                    id="password"
+                    type="password"
+                    v-model="form.password"
+                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                    required
+                    autocomplete="new-password"
+                />
+                <div v-if="form.errors.password" class="text-red-600 text-sm mt-1">
+                    {{ form.errors.password }}
+                </div>
+            </div>
+
+            <!-- Confirm Password -->
+            <div class="mt-4">
+                <label for="password_confirmation" class="block font-medium text-sm text-gray-700">
+                    Confirmer le mot de passe
+                </label>
+                <input
+                    id="password_confirmation"
+                    type="password"
+                    v-model="form.password_confirmation"
+                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                    required
+                    autocomplete="new-password"
+                />
+                <div v-if="form.errors.password_confirmation" class="text-red-600 text-sm mt-1">
+                    {{ form.errors.password_confirmation }}
+                </div>
+            </div>
+
+            <div class="flex items-center justify-end mt-4">
+                <Link
+                    :href="route('login')"
+                    class="text-sm text-indigo-600 hover:text-indigo-900 underline"
+                >
+                    Déjà inscrit ?
+                </Link>
+
+                <button
+                    type="submit"
+                    class="ml-4 inline-flex items-center px-4 py-2 bg-indigo-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-700 focus:bg-indigo-700 active:bg-indigo-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150"
+                    :class="{ 'opacity-25': form.processing }"
+                    :disabled="form.processing"
+                >
+                    S'inscrire
+                </button>
+            </div>
+        </form>
     </GuestLayout>
 </template>
 
 <script setup>
-import { useForm, Link } from '@inertiajs/vue3';
+import { Head, Link, useForm } from '@inertiajs/vue3';
 import GuestLayout from '@/Components/Layout/GuestLayout.vue';
 
 const form = useForm({
     name: '',
     email: '',
+    role: '',
     password: '',
     password_confirmation: '',
 });
